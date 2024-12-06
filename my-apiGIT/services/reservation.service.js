@@ -123,6 +123,14 @@ export const create = async (idClient, idRoom, arrivalDate, departureDate, total
             error: `La chambre avec l'ID ${idRoom} est déjà réservée entre ${conflictingReservation.arrivalDate} et ${conflictingReservation.departureDate}.` 
         };
     }
+
+    // Mettre à jour le statut de la chambre à 'RESERVED' pour la période de la réservation
+    await prisma.room.update({
+        where: { idRoom },
+        data: {
+            status: 'RESERVED',
+        },
+    });
     // Créer la réservation si toutes les vérifications passent
     const reservation = await prisma.reservation.create({
         data: {
