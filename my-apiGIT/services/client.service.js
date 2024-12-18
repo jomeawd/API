@@ -1,4 +1,7 @@
 import prisma from '../db.js'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+
 
 export const getAll = async(sortBy, sortDirection) => {
     let options = {
@@ -62,7 +65,7 @@ export const deleteById = async (idClient) => {
 
 
 
-export const create = async (lastName, firstName, telephone) => {
+/*export const create = async (lastName, firstName, telephone) => {
     const client = await prisma.client.create({
         data: {
             lastName,
@@ -78,7 +81,63 @@ export const create = async (lastName, firstName, telephone) => {
     });
 
     return client;
+};*/
+
+export const create = async (lastName, firstName, telephone, username, password, role = "user") => {
+    // Vérification si le username existe déjà
+    const existingUser = await prisma.client.count({
+        where: { username },
+    });
+    if (existingUser > 0) throw new Error('Le nom d\'utilisateur existe déjà.');
+
+    // Hachage du mot de passe
+    const encryptedPassword = bcrypt.hashSync(password, parseInt(process.env.BCRYPT_SALT_ROUNDS || 10));
+
+    // Création du client
+    const client = await prisma.client.create({
+        data: {
+            lastName, 
+            firstName, 
+            telephone, 
+            username,
+            password: encryptedPassword,
+            role,
+        },
+        select: {
+            idClient: true,
+            lastName: true,
+            firstName: true,
+            telephone: true,
+            username: true,
+            role: true,
+        },
+    });
+
+    return client;
 };
+
+export const login = async (username, password) => {
+    const client = await prisma.client.findFirst({
+        where: {
+            username
+        }
+    })
+
+    if (!client) throw new Error('Client not found')
+
+    if (!bcrypt.compareSync(password, client.password)) throw new Error('Invalid password')
+
+    // Generate a token here
+    const token = jwt.sign({
+        id: client.id,
+        username: client.username,
+        role: client.role
+    }, process.env.JWT_SECRET, {
+        expiresIn: '1h'
+    })
+
+    return token
+}
 
 export const update = async (idClient, updatedData) => {
     // Vérifier si le client existe avant de le mettre à jour

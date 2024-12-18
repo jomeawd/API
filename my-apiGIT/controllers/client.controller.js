@@ -1,4 +1,5 @@
-import { getAll, getById, create, update, deleteById } from '../services/client.service.js';
+import { getAll, getById, create, update, deleteById, login } from '../services/client.service.js';
+
 
 
 export const getAllClient = async (req, res) => {
@@ -34,6 +35,50 @@ export const updateClient = async (req, res) => {
     }
 };
 
+export const registerClient = async (req, res, next) => {
+    const { lastName, firstName, telephone, username, password } = req.body;
+    let client;
+    try {
+        client = await create(lastName, firstName, telephone, username, password)
+    } catch (err) {
+        return next(err)
+    }
+    res.json({
+        success: true,
+        data: client
+    })
+};
+
+export const loginClient = async (req, res, next) => {
+    const { username, password } = req.body
+    let token
+
+    try {
+        token = await login(username, password)
+    } catch (err) {
+        return next(err)
+    }
+
+    // We will return a success message if the login was successful and the token
+    res.json({
+        success: true,
+        message: 'Login successful',
+        token: token
+    })
+}
+
+export const deleteClient = async (req, res) => {
+    const { idClient } = req.params;
+
+    const isDeleted = await deleteById(parseInt(idClient));
+    if (isDeleted.error) {
+        res.status(400).json({ message: isDeleted.error });
+    } else {
+        res.status(200).json({ message: `Client avec l'ID ${idClient} supprimé.` });
+    }
+}
+
+/*
 export const createClient = async (req, res) => {
     const { lastName, firstName, telephone } = req.body;
     if (!lastName || !firstName || !telephone) {
@@ -54,3 +99,4 @@ export const deleteClient = async (req, res) => {
         res.status(200).json({ message: `Client avec l'ID ${idClient} supprimé.` });
     }
 }
+*/

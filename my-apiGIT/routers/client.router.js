@@ -1,17 +1,22 @@
 import express from 'express';
-import { getAllClient, getClientById, createClient, updateClient, deleteClient } from '../controllers/client.controller.js';
+import { getAllClient, getClientById, registerClient, updateClient, deleteClient, loginClient } from '../controllers/client.controller.js';
+import authMiddleware, { adminMiddleware } from '../middlewares/auth.js'
+
+
 
 // Create a new router
 const router = express.Router()
 
 // Route pour récupérer les clients
-router.get('/', getAllClient);
+router.get('/', authMiddleware, adminMiddleware, getAllClient);
 
 // Route pour récupérer un client par son idClient
-router.get('/:idClient', getClientById);
+router.get('/:idClient',getClientById);
 
 // Route pour créer un nouveau client
-router.post('/', createClient);
+router.post('/register', registerClient);
+
+router.post('/login', loginClient);
 
 // Route pour mettre à jour un client par son idClient
 router.put('/:idClient', updateClient);
