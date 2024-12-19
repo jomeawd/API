@@ -19,7 +19,6 @@ export const getClientById = async (req, res) => {
     }
 };
 
-
 export const updateClient = async (req, res) => {
     try {
         const { idClient } = req.params;
@@ -36,10 +35,10 @@ export const updateClient = async (req, res) => {
 };
 
 export const registerClient = async (req, res, next) => {
-    const { lastName, firstName, telephone, username, password } = req.body;
+    const { lastName, firstName, telephone, username, password, role } = req.body;
     let client;
     try {
-        client = await create(lastName, firstName, telephone, username, password)
+        client = await create(lastName, firstName, telephone, username, password, role)
     } catch (err) {
         return next(err)
     }

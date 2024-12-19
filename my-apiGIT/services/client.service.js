@@ -9,7 +9,9 @@ export const getAll = async(sortBy, sortDirection) => {
             idClient: true,
             lastName: true,
             firstName: true,
-            telephone: true
+            telephone: true,
+            username: true,
+            role: true
         }
     }
     if (sortBy) {
@@ -28,14 +30,14 @@ export const getById = async (idClient) => {
             idClient: true,
             lastName: true,
             firstName: true,
-            telephone: true
+            telephone: true,
+            role: true
         },
         where: {
             idClient
         }
     });
 };
-
 
 export const deleteById = async (idClient) => {
     const client = await getById(idClient);
@@ -63,8 +65,6 @@ export const deleteById = async (idClient) => {
     return true;
 };
 
-
-
 /*export const create = async (lastName, firstName, telephone) => {
     const client = await prisma.client.create({
         data: {
@@ -88,7 +88,9 @@ export const create = async (lastName, firstName, telephone, username, password,
     const existingUser = await prisma.client.count({
         where: { username },
     });
-    if (existingUser > 0) throw new Error('Le nom d\'utilisateur existe déjà.');
+    if (existingUser) {
+        return { error: 'Le nom d\'utilisateur existe déjà.' }; // Retourne un message d'erreur
+    }
 
     // Hachage du mot de passe
     const encryptedPassword = bcrypt.hashSync(password, parseInt(process.env.BCRYPT_SALT_ROUNDS || 10));
@@ -109,7 +111,7 @@ export const create = async (lastName, firstName, telephone, username, password,
             firstName: true,
             telephone: true,
             username: true,
-            role: true,
+            role: true
         },
     });
 
@@ -152,7 +154,8 @@ export const update = async (idClient, updatedData) => {
             idClient: true,
             lastName: true,
             firstName: true,
-            telephone: true
+            telephone: true,
+            role: true
         }
     });
 

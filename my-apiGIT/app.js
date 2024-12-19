@@ -12,6 +12,7 @@ app.use('/client', clientRouter)
 app.use('/room', roomRouter)
 app.use('/reservation', reservationRouter)
 
+
 app.get('/', (req, res)=>{
     //console.log(req.params)
     //res.status()

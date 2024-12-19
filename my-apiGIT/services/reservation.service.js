@@ -71,7 +71,7 @@ export const deleteById = async (idReserv) => {
     return false;
 };
 
-export const create = async (idClient, idRoom, arrivalDate, departureDate, totalPrice) => {
+export const create = async (idClient, idRoom, arrivalDate, departureDate) => {
     // Vérifier si le client existe
     const clientExists = await prisma.client.findUnique({
         where: { idClient },
@@ -84,6 +84,7 @@ export const create = async (idClient, idRoom, arrivalDate, departureDate, total
     // Vérifier si la chambre existe
     const roomExists = await prisma.room.findUnique({
         where: { idRoom },
+        select: { price: true },
     });
 
     if (!roomExists) {
@@ -131,6 +132,11 @@ export const create = async (idClient, idRoom, arrivalDate, departureDate, total
             status: 'RESERVED',
         },
     });
+
+    // Calculer le prix total
+    const days = Math.ceil((departure - arrival) / (1000 * 60 * 60 * 24)); // Nombre de jours
+    const totalPrice = roomExists.price * days; 
+
     // Créer la réservation si toutes les vérifications passent
     const reservation = await prisma.reservation.create({
         data: {

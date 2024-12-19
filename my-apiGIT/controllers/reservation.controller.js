@@ -33,14 +33,14 @@ export const updateReservation = async (req, res) => {
 };
 
 export const createReservation = async (req, res) => {
-    const { idClient, idRoom, arrivalDate, departureDate, totalPrice } = req.body;
+    const { idClient, idRoom, arrivalDate, departureDate } = req.body;
 
     // Vérifier si tous les champs nécessaires sont présents
-    if (!idClient || !idRoom || !arrivalDate || !departureDate || !totalPrice) {
+    if (!idClient || !idRoom || !arrivalDate || !departureDate) {
         return res.status(400).json({ message: 'Tous les champs (idClient, idRoom, arrivalDate, departureDate, totalPrice) sont requis.' });
     }
 
-    const reservation = await create(idClient, idRoom, arrivalDate, departureDate, totalPrice);
+    const reservation = await create(idClient, idRoom, arrivalDate, departureDate);
     
     if (reservation.error) {
         return res.status(400).json({ message: reservation.error });
