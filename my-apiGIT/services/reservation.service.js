@@ -1,5 +1,6 @@
 import prisma from '../db.js';
 
+// Service pour récupérer toutes les réservations
 export const getAll = async (sortBy, sortDirection) => {
     let options = {
         select: {
@@ -24,15 +25,19 @@ export const getAll = async (sortBy, sortDirection) => {
     };
     if (sortBy) {
         if (!sortDirection) sortDirection = 'asc';
+        // Applique les options de tri
         options.orderBy = {
             [sortBy]: sortDirection,
         };
     }
 
+    // Retourne la liste des réservations
     return await prisma.reservation.findMany(options);
 };
 
+// Service pour récupérer une réservation spécifique par ID
 export const getById = async (idReserv) => {
+    // Recherche une réservation par son ID avec les informations du client et de la chambre associée
     return await prisma.reservation.findUnique({
         select: {
             idReserv: true,
@@ -59,7 +64,9 @@ export const getById = async (idReserv) => {
     });
 };
 
+// Service pour supprimer une réservation par son ID
 export const deleteById = async (idReserv) => {
+    // Vérifie si la réservation existe
     if (await getById(idReserv)) {
         await prisma.reservation.delete({
             where: {
@@ -68,9 +75,11 @@ export const deleteById = async (idReserv) => {
         });
         return true;
     }
+    // Retourne false si la réservation n'existe pas
     return false;
 };
 
+// Service pour créer une nouvelle réservation
 export const create = async (idClient, idRoom, arrivalDate, departureDate) => {
     // Vérifier si le client existe
     const clientExists = await prisma.client.findUnique({
@@ -111,8 +120,8 @@ export const create = async (idClient, idRoom, arrivalDate, departureDate) => {
             OR: [
                 {
                     AND: [
-                        { arrivalDate: { lte: departureDate } }, // Une réservation finit après ou le jour même de l'arrivée demandée
-                        { departureDate: { gte: arrivalDate } }, // Une réservation commence avant ou le jour même du départ demandé
+                        { arrivalDate: { lte: departureDate } }, 
+                        { departureDate: { gte: arrivalDate } },
                     ],
                 },
             ],
@@ -133,11 +142,11 @@ export const create = async (idClient, idRoom, arrivalDate, departureDate) => {
         },
     });
 
-    // Calculer le prix total
+    // Calculer le prix total basé sur le nombre de jours et le prix de la chambre
     const days = Math.ceil((departure - arrival) / (1000 * 60 * 60 * 24)); // Nombre de jours
     const totalPrice = roomExists.price * days; 
 
-    // Créer la réservation si toutes les vérifications passent
+    // Crée la réservation et retourne ses données
     const reservation = await prisma.reservation.create({
         data: {
             idClient,
@@ -159,7 +168,9 @@ export const create = async (idClient, idRoom, arrivalDate, departureDate) => {
     return reservation;
 };
 
+// Service pour mettre à jour une réservation existante
 export const update = async (idReserv, updatedData) => {
+    // Met à jour les données d'une réservation et retourne les informations mises à jour
     const updatedReservation = await prisma.reservation.update({
         where: {
             idReserv,
@@ -188,3 +199,45 @@ export const update = async (idReserv, updatedData) => {
 
     return updatedReservation;
 };
+
+// Service pour récupérer les deux mois avec le plus de réservations dans une année donnée
+export const getTopTwoMonthsByYear = async (year) => {
+    // Recherche les réservations pour l'année spécifiée
+    const reservations = await prisma.reservation.findMany({
+        where: {
+            AND: [
+                { arrivalDate: { gte: `${year}-01-01` } },
+                { departureDate: { lte: `${year}-12-31` } }
+            ],
+        },
+        select: {
+            arrivalDate: true,
+            departureDate: true,
+        },
+    });
+
+    // Compte les réservations par mois
+    const monthsCount = Array(12).fill(0);
+
+    reservations.forEach((reservation) => {
+        const arrivalMonth = new Date(reservation.arrivalDate).getMonth(); 
+        const departureMonth = new Date(reservation.departureDate).getMonth();
+
+        // Ajouter au compteur pour chaque mois couvert par la réservation
+        for (let i = arrivalMonth; i <= departureMonth; i++) {
+            monthsCount[i]++;
+        }
+    });
+
+    // Identifie les deux mois avec le plus de réservations
+    const topTwoMonths = monthsCount
+        .map((count, index) => ({ month: index + 1, count }))
+        // Trier par ordre décroissant des réservations
+        .sort((a, b) => b.count - a.count)
+        // Prendre les deux premiers mois
+        .slice(0, 2);
+
+    return topTwoMonths;
+};
+
+

@@ -5,8 +5,10 @@ info:
   title: OpenAPI Specification
   version: "1"
 paths:
-  /clients:
+  /client:
     get:
+      tags:
+        - Clients
       operationId: listClients
       summary: "List all clients"
       parameters:
@@ -26,7 +28,10 @@ paths:
       responses:
         '200':
           description: A list of clients
+  /client/register:
     post:
+      tags:
+        - Clients
       operationId: registerClient
       summary: "Register a new client"
       requestBody:
@@ -44,4 +49,325 @@ paths:
       responses:
         '200':
           description: client created
-      
+  /client/login:
+    post:
+      tags:
+        - Clients
+      operationId: loginClient
+      summary: "Login a client"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: "Login successful, returns a JWT token"
+        '401':
+          description: "Invalid credentials"
+  /client/{idClient}:
+    get:
+      tags:
+        - Clients
+      operationId: getClientById
+      summary: "Get a client by ID"
+      parameters:
+        - name: "idClient"
+          in: "path"
+          description: "ID of the client to retrieve"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '200':
+          description: "Details of the client"
+        '404':
+          description: "Client not found"
+    put:
+      tags:
+        - Clients
+      operationId: updateClient
+      summary: "Update a client by ID"
+      parameters:
+        - name: "idClient"
+          in: "path"
+          description: "ID of the client to update"
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: "Client updated successfully"
+        '404':
+          description: "Client not found"
+    
+    delete:
+      tags:
+        - Clients
+      operationId: deleteClient
+      summary: "Delete a client by ID"
+      parameters:
+        - name: "idClient"
+          in: "path"
+          description: "ID of the client to delete"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '204':
+          description: "Client deleted successfully"
+        '404':
+          description: "Client not found"
+  /client/{idClient}/reservation:
+    get:
+      tags:
+        - Clients
+      operationId: getReservationsByClientId
+      summary: "Get all reservations of a client by ID"
+      parameters:
+        - name: "idClient"
+          in: "path"
+          description: "ID of the client to retrieve reservations for"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '200':
+          description: "List of reservations for the client"
+        '404':
+          description: "Client not found or no reservations"
+
+  /reservation/top-months/{year}:
+    get:
+      tags:
+        - Reservations
+      operationId: getTopMonths
+      summary: "Get the most reserved months in a specific year"
+      parameters:
+        - name: "year"
+          in: "path"
+          description: "The year to retrieve the top reserved months for"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '200':
+          description: "Top reserved months for the given year"
+        '404':
+          description: "No data found for the specified year"
+
+  /room:
+    get:
+      tags:
+        - Rooms
+      operationId: listRooms
+      summary: "List all rooms"
+      responses:
+        '200':
+          description: A list of rooms
+    post:
+      tags:
+        - Rooms
+      operationId: createRoom
+      summary: "Create a new room"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [number, view]
+              properties:
+                number:
+                  type: integer
+                view:
+                  type: string
+      responses:
+        '201':
+          description: Room created
+
+  /room/{idRoom}:
+    get:
+      tags:
+        - Rooms
+      operationId: getRoomById
+      summary: "Get a room by ID"
+      parameters:
+        - name: "idRoom"
+          in: "path"
+          description: "ID of the room to retrieve"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '200':
+          description: "Details of the room"
+        '404':
+          description: "Room not found"
+    put:
+      tags:
+        - Rooms
+      operationId: updateRoom
+      summary: "Update a room by ID"
+      parameters:
+        - name: "idRoom"
+          in: "path"
+          description: "ID of the room to update"
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number:
+                  type: integer
+                view:
+                  type: string
+      responses:
+        '200':
+          description: "Room updated successfully"
+        '404':
+          description: "Room not found"
+    delete:
+      tags:
+        - Rooms
+      operationId: deleteRoom
+      summary: "Delete a room by ID"
+      parameters:
+        - name: "idRoom"
+          in: "path"
+          description: "ID of the room to delete"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '204':
+          description: "Room deleted successfully"
+        '404':
+          description: "Room not found"
+
+  /reservation:
+    get:
+      tags:
+        - Reservations
+      operationId: listReservations
+      summary: "List all reservations"
+      responses:
+        '200':
+          description: A list of reservations
+    post:
+      tags:
+        - Reservations
+      operationId: createReservation
+      summary: "Create a new reservation"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [arrivalDate, departureDate, totalPrice]
+              properties:
+                arrivalDate:
+                  type: string
+                  format: date
+                departureDate:
+                  type: string
+                  format: date
+                totalPrice:
+                  type: number
+      responses:
+        '201':
+          description: Reservation created
+
+  /reservation/{idReservation}:
+    get:
+      tags:
+        - Reservations
+      operationId: getReservationById
+      summary: "Get a reservation by ID"
+      parameters:
+        - name: "idReservation"
+          in: "path"
+          description: "ID of the reservation to retrieve"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '200':
+          description: "Details of the reservation"
+        '404':
+          description: "Reservation not found"
+    put:
+      tags:
+        - Reservations
+      operationId: updateReservation
+      summary: "Update a reservation by ID"
+      parameters:
+        - name: "idReservation"
+          in: "path"
+          description: "ID of the reservation to update"
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arrivalDate:
+                  type: string
+                  format: date
+                departureDate:
+                  type: string
+                  format: date
+                totalPrice:
+                  type: number
+      responses:
+        '200':
+          description: "Reservation updated successfully"
+        '404':
+          description: "Reservation not found"
+    delete:
+      tags:
+        - Reservations
+      operationId: deleteReservation
+      summary: "Delete a reservation by ID"
+      parameters:
+        - name: "idReservation"
+          in: "path"
+          description: "ID of the reservation to delete"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        '204':
+          description: "Reservation deleted successfully"
+        '404':
+          description: "Reservation not found"

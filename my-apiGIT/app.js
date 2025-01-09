@@ -1,16 +1,17 @@
 import express from 'express'
-import usersRouter from './routers/users.router.js'
 import clientRouter from './routers/client.router.js'
 import roomRouter from './routers/room.router.js'
 import reservationRouter from './routers/reservation.router.js'
+
+
 const app = express()
 
 app.use(express.json())
 
-app.use('/users', usersRouter)
 app.use('/client', clientRouter)
 app.use('/room', roomRouter)
 app.use('/reservation', reservationRouter)
+
 
 
 app.get('/', (req, res)=>{

@@ -1,29 +1,37 @@
 import jwt from 'jsonwebtoken'
 
+// Middleware pour vérifier le token JWT
 export default (req, res, next) => {
-    let token = req.headers?.authorization // Get the token from the headers
+    // Récupère le token dans les headers
+    let token = req.headers?.authorization
 
     if (!token) {
-        return res.status(401).json({ message: 'No token provided' }) // Return 401 if no token is provided
+        // Retourne une erreur 401 si aucun token n'est fourni
+        return res.status(401).json({ message: 'No token provided' })
     }
 
-    token = token.replace('Bearer ', '') // Remove the Bearer part from the token (it's a convention)
+    // Supprime la partie "Bearer " du token (par convention)
+    token = token.replace('Bearer ', '')
 
     try {
-        // Verify the token using the secret key, if it's invalid it will throw an error
+        // Vérifie le token avec la clé secrète, renvoie une erreur si invalide
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-        // Add the user to the request object, to be used in the next controller
+        // Ajoute les infos du client (user) au req pour l'utiliser dans le contrôleur suivant
         req.user = decoded
     } catch {
-        return res.status(401).json({ message: 'Invalid token' }) // Return 401 if the token is invalid
+        // Retourne une erreur 401 si le token est invalide
+        return res.status(401).json({ message: 'Invalid token' })
     }
 
     next()
 }
 
+// Middleware pour vérifier si le rôle est admin
 export const adminMiddleware = (req, res, next) => {
+    // Vérifie si le rôle du client n'est pas admin
     if (req.user.role !== 'admin') {
+        // Retourne une erreur 403 si l'accès est refusé
         return res.status(403).json({ message: "Accès refusé. Admin requis." });
     }
     next();

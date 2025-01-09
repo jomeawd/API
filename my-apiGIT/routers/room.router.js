@@ -1,8 +1,8 @@
 import express from 'express';
-import { getAllRooms, getRoomById, deleteRoom, createRoom } from '../controllers/room.controller.js';
+import { getAllRooms, getRoomById, deleteRoom, createRoom, updateRoom } from '../controllers/room.controller.js';
 import authMiddleware, { adminMiddleware } from '../middlewares/auth.js'
 
-// Create a new router
+// Créer un nouvel router
 const router = express.Router();
 
 // Route pour récupérer toutes les chambres
@@ -16,5 +16,8 @@ router.delete('/:idRoom', authMiddleware, adminMiddleware, deleteRoom);
 
 // Route pour créer une nouvelle chambre
 router.post('/', authMiddleware, adminMiddleware, createRoom);
+
+// Route pour mettre à jour une chambre
+router.put('/:idRoom',  authMiddleware, adminMiddleware, updateRoom);
 
 export default router;
