@@ -9,9 +9,10 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql" // ou "mysql" pour MariaDB aussi
   url      = env("DATABASE_URL")
 }
+
 
 model Client {
   idClient       Int      @id @default(autoincrement())

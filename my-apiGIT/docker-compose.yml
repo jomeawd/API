@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: hotel_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api:
+    build: .
+    container_name: api
+    depends_on:
+      - mysql
+    environment:
+      DATABASE_URL: "mysql://root:rootpassword@mysql:3306/hotel_db"
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npx prisma migrate deploy && npm run dev"
+
+volumes:
+  mysql_data:
